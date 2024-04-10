@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DINERO</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    #nombreEmpresa {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #666;
+    }
+    .linea-divisoria {
+        width: 100%;
+        height: 15px;
+        background-color: #ccc;
+        margin-bottom: 20px;
+    }
+    input[type="number"],
+    select {
+        padding: 10px;
+        margin-bottom: 10px;
+        width: calc(50% - 5px);
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    select {
+        width: 50%;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    #total {
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>R7</h1>
+    <p id="nombreEmpresa">DINERO</p>
+    <div class="linea-divisoria"></div>
+    <input type="number" id="monto" placeholder="Ingrese la cantidad">
+    <select id="dia">
+        <option value="lunes">Lunes</option>
+        <option value="martes">Martes</option>
+        <option value="miércoles">Miércoles</option>
+        <option value="jueves">Jueves</option>
+        <option value="viernes">Viernes</option>
+        <option value="sábado">Sábado</option>
+        <option value="domingo">Domingo</option>
+    </select>
+    <button onclick="guardarGasto()">Guardar</button>
+    <br><br>
+    <button onclick="verDetalles()">Ver Detalles</button>
+    <button onclick="limpiarDatos()">Limpiar Datos</button>
+    <br><br>
+    <table id="tablaGastos">
+        <thead>
+            <tr>
+                <th>Día</th>
+                <th>Monto</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se llenarán los datos de forma dinámica -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Total</td>
+                <td id="total"></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    let gastos = [];
+
+    // Cargar datos almacenados al cargar la página
+    window.onload = function() {
+        if(localStorage.getItem('gastos')) {
+            gastos = JSON.parse(localStorage.getItem('gastos'));
+            verDetalles();
+        }
+    }
+
+    function guardarGasto() {
+        const monto = document.getElementById("monto").value;
+        const dia = document.getElementById("dia").value;
+        gastos.push({ dia: dia, monto: parseInt(monto) });
+        localStorage.setItem('gastos', JSON.stringify(gastos));
+        document.getElementById("monto").value = "";
+    }
+
+    function verDetalles() {
+        const tabla = document.getElementById("tablaGastos").getElementsByTagName('tbody')[0];
+        const totalElement = document.getElementById("total");
+        tabla.innerHTML = "";
+        let total = 0;
+        gastos.forEach((gasto, index) => {
+            const row = tabla.insertRow();
+            const cellDia = row.insertCell(0);
+            const cellMonto = row.insertCell(1);
+            const cellEliminar = row.insertCell(2);
+            cellDia.innerHTML = gasto.dia;
+            cellMonto.innerHTML = gasto.monto;
+            total += gasto.monto;
+            const eliminarButton = document.createElement("button");
+            eliminarButton.textContent = "Eliminar";
+            eliminarButton.onclick = function() {
+                gastos.splice(index, 1);
+                localStorage.setItem('gastos', JSON.stringify(gastos));
+                verDetalles();
+            };
+            cellEliminar.appendChild(eliminarButton);
+        });
+        totalElement.textContent = total;
+    }
+
+    function limpiarDatos() {
+        gastos = [];
+        localStorage.removeItem('gastos');
+        document.getElementById("tablaGastos").getElementsByTagName('tbody')[0].innerHTML = "";
+        document.getElementById("total").textContent = "";
+    }
+</script>
+
+</body>
+</html>
